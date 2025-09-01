@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Out the Door Price Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and general body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        /* Ensure the main container is responsive */
+        .container {
+            max-width: 500px;
+            width: 100%;
+        }
+        /* Style for the input and output fields, and select dropdown */
+        input[type="number"], .output-field, select {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db; /* Light gray border */
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 1rem;
+            color: #374151; /* Dark gray text */
+            background-color: #ffffff; /* White background */
+        }
+        .output-field {
+            background-color: #e5e7eb; /* Slightly darker background for output */
+            font-weight: 600;
+        }
+        /* Focus styles for input and select */
+        input[type="number"]:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6; /* Blue border on focus */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25); /* Light blue shadow on focus */
+        }
+        /* Error message styling */
+        .error-message {
+            color: #ef4444; /* Red text */
+            font-size: 0.875rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container bg-white p-8 rounded-lg shadow-xl border border-gray-200">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Price Calculator</h1>
+
+        <div class="mb-5">
+            <label for="salePrice" class="block text-lg font-medium text-gray-700 mb-2">Sale Price ($)</label>
+            <input
+                type="number"
+                id="salePrice"
+                placeholder="Enter sale price"
+                class="focus:ring-blue-500 focus:border-blue-500"
+                oninput="calculatePrices()"
+                min="0"
+                step="0.01"
+            >
+            <p id="salePriceError" class="error-message"></p>
+        </div>
+
+        <div class="mb-5">
+            <label for="stateSelect" class="block text-lg font-medium text-gray-700 mb-2">Select State</label>
+            <select
+                id="stateSelect"
+                class="focus:ring-blue-500 focus:border-blue-500"
+                onchange="calculatePrices()"
+            >
+                <option value="">-- Select a State --</option>
+                <option value="AL">Alabama (4.00%)</option>
+                <option value="AK">Alaska (0.00%)</option>
+                <option value="AZ">Arizona (5.60%)</option>
+                <option value="AR">Arkansas (6.50%)</option>
+                <option value="CA">California (7.25%)</option>
+                <option value="CO">Colorado (2.90%)</option>
+                <option value="CT">Connecticut (6.35%)</option>
+                <option value="DE">Delaware (0.00%)</option>
+                <option value="FL">Florida (6.00%)</option>
+                <option value="GA">Georgia (4.00%)</option>
+                <option value="HI">Hawaii (4.00%)</option>
+                <option value="ID">Idaho (6.00%)</option>
+                <option value="IL">Illinois (6.25%)</option>
+                <option value="IN">Indiana (7.00%)</option>
+                <option value="IA">Iowa (6.00%)</option>
+                <option value="KS">Kansas (6.50%)</option>
+                <option value="KY">Kentucky (6.00%)</option>
+                <option value="LA">Louisiana (4.45%)</option>
+                <option value="ME">Maine (5.50%)</option>
+                <option value="MD">Maryland (6.00%)</option>
+                <option value="MA">Massachusetts (6.25%)</option>
+                <option value="MI">Michigan (6.00%)</option>
+                <option value="MN">Minnesota (6.875%)</option>
+                <option value="MS">Mississippi (7.00%)</option>
+                <option value="MO">Missouri (4.225%)</option>
+                <option value="MT">Montana (0.00%)</option>
+                <option value="NE">Nebraska (5.50%)</option>
+                <option value="NV">Nevada (6.85%)</option>
+                <option value="NH">New Hampshire (0.00%)</option>
+                <option value="NJ">New Jersey (6.625%)</option>
+                <option value="NM">New Mexico (5.125%)</option>
+                <option value="NY">New York (4.00%)</option>
+                <option value="NC">North Carolina (4.75%)</option>
+                <option value="ND">North Dakota (5.00%)</option>
+                <option value="OH">Ohio (5.75%)</option>
+                <option value="OK">Oklahoma (4.50%)</option>
+                <option value="OR">Oregon (0.00%)</option>
+                <option value="PA">Pennsylvania (6.00%)</option>
+                <option value="RI">Rhode Island (7.00%)</option>
+                <option value="SC">South Carolina (6.00%)</option>
+                <option value="SD">South Dakota (4.50%)</option>
+                <option value="TN">Tennessee (7.00%)</option>
+                <option value="TX">Texas (6.25%)</option>
+                <option value="UT">Utah (4.85%)</option>
+                <option value="VT">Vermont (6.00%)</option>
+                <option value="VA">Virginia (4.30%)</option>
+                <option value="WA">Washington (6.50%)</option>
+                <option value="WV">West Virginia (6.00%)</option>
+                <option value="WI">Wisconsin (5.00%)</option>
+                <option value="WY">Wyoming (4.00%)</option>
+            </select>
+            <p id="stateError" class="error-message"></p>
+        </div>
+
+        <div class="mb-5">
+            <label for="documentationFee" class="block text-lg font-medium text-gray-700 mb-2">Documentation Fee ($)</label>
+            <input
+                type="number"
+                id="documentationFee"
+                placeholder="Enter documentation fee"
+                class="focus:ring-blue-500 focus:border-blue-500"
+                oninput="calculatePrices()"
+                min="0"
+                step="0.01"
+                value="150.00" >
+            <p id="documentationFeeError" class="error-message"></p>
+        </div>
+
+        <div class="mb-5">
+            <label for="titleRegistrationFee" class="block text-lg font-medium text-gray-700 mb-2">Title/Registration Fee ($)</label>
+            <input
+                type="number"
+                id="titleRegistrationFee"
+                placeholder="Enter title/registration fee"
+                class="focus:ring-blue-500 focus:border-blue-500"
+                oninput="calculatePrices()"
+                min="0"
+                step="0.01"
+                value="100.00" >
+            <p id="titleRegistrationFeeError" class="error-message"></p>
+        </div>
+
+        <div class="mb-5">
+            <label for="negotiablePrice" class="block text-lg font-medium text-gray-700 mb-2">Negotiable Price ($)</label>
+            <div id="negotiablePrice" class="output-field text-gray-900">0.00</div>
+            <p class="text-sm text-gray-500 mt-1">
+                (Estimated potential for negotiation, e.g., extended warranties, dealer add-ons)
+            </p>
+        </div>
+
+        <div class="mb-5">
+            <label for="nonNegotiablePrice" class="block text-lg font-medium text-gray-700 mb-2">Non-Negotiable Price ($)</label>
+            <div id="nonNegotiablePrice" class="output-field text-gray-900">0.00</div>
+            <p class="text-sm text-gray-500 mt-1">
+                (Includes sales tax, title/registration, documentation fees)
+            </p>
+        </div>
+
+        <div class="mb-0">
+            <label for="outTheDoorPrice" class="block text-lg font-medium text-gray-700 mb-2">Out The Door Price ($)</label>
+            <div id="outTheDoorPrice" class="output-field text-blue-700 font-extrabold text-xl">0.00</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Defines sales tax rates for all 50 US states.
+         * These rates are general state sales tax rates and do not include
+         * local sales taxes, which can vary significantly by county or city.
+         * Users should verify exact local tax rates for precise calculations.
+         * Source: https://taxfoundation.org/data/state-local-sales-tax-rates-2024/ (as of early 2024)
+         */
+        const salesTaxRates = {
+            'AL': 0.0400, 'AK': 0.0000, 'AZ': 0.0560, 'AR': 0.0650, 'CA': 0.0725,
+            'CO': 0.0290, 'CT': 0.0635, 'DE': 0.0000, 'FL': 0.0600, 'GA': 0.0400,
+            'HI': 0.0400, 'ID': 0.0600, 'IL': 0.0625, 'IN': 0.0700, 'IA': 0.0600,
+            'KS': 0.0650, 'KY': 0.0600, 'LA': 0.0445, 'ME': 0.0550, 'MD': 0.0600,
+            'MA': 0.0625, 'MI': 0.0600, 'MN': 0.06875, 'MS': 0.0700, 'MO': 0.04225,
+            'MT': 0.0000, 'NE': 0.0550, 'NV': 0.0685, 'NH': 0.0000, 'NJ': 0.06625,
+            'NM': 0.05125, 'NY': 0.0400, 'NC': 0.0475, 'ND': 0.0500, 'OH': 0.0575,
+            'OK': 0.0450, 'OR': 0.0000, 'PA': 0.0600, 'RI': 0.0700, 'SC': 0.0600,
+            'SD': 0.0450, 'TN': 0.0700, 'TX': 0.0625, 'UT': 0.0485, 'VT': 0.0600,
+            'VA': 0.0430, 'WA': 0.0650, 'WV': 0.0600, 'WI': 0.0500, 'WY': 0.0400
+        };
+
+        /**
+         * Calculates the negotiable, non-negotiable, and out-the-door prices
+         * based on the input sale price, selected state's sales tax, and
+         * user-defined documentation and title/registration fees.
+         */
+        function calculatePrices() {
+            // Get input elements and their values
+            const salePriceInput = document.getElementById('salePrice');
+            const stateSelect = document.getElementById('stateSelect');
+            const documentationFeeInput = document.getElementById('documentationFee');
+            const titleRegistrationFeeInput = document.getElementById('titleRegistrationFee');
+
+            let salePrice = parseFloat(salePriceInput.value);
+            let documentationFee = parseFloat(documentationFeeInput.value);
+            let titleRegistrationFee = parseFloat(titleRegistrationFeeInput.value);
+            const selectedState = stateSelect.value;
+
+            // Get error message elements
+            const salePriceError = document.getElementById('salePriceError');
+            const stateError = document.getElementById('stateError');
+            const documentationFeeError = document.getElementById('documentationFeeError');
+            const titleRegistrationFeeError = document.getElementById('titleRegistrationFeeError');
+
+            // Get output elements
+            const negotiablePriceOutput = document.getElementById('negotiablePrice');
+            const nonNegotiablePriceOutput = document.getElementById('nonNegotiablePrice');
+            const outTheDoorPriceOutput = document.getElementById('outTheDoorPrice');
+
+            // Reset error messages
+            salePriceError.textContent = '';
+            stateError.textContent = '';
+            documentationFeeError.textContent = '';
+            titleRegistrationFeeError.textContent = '';
+
+            // Input validation for Sale Price
+            if (isNaN(salePrice) || salePrice < 0) {
+                salePriceError.textContent = 'Please enter a valid positive number for the sale price.';
+                // Clear output fields if input is invalid
+                negotiablePriceOutput.textContent = '0.00';
+                nonNegotiablePriceOutput.textContent = '0.00';
+                outTheDoorPriceOutput.textContent = '0.00';
+                return;
+            }
+
+            // Input validation for Documentation Fee
+            if (isNaN(documentationFee) || documentationFee < 0) {
+                documentationFeeError.textContent = 'Please enter a valid non-negative number for the documentation fee.';
+                documentationFee = 0; // Use 0 for calculation if invalid
+            }
+
+            // Input validation for Title/Registration Fee
+            if (isNaN(titleRegistrationFee) || titleRegistrationFee < 0) {
+                titleRegistrationFeeError.textContent = 'Please enter a valid non-negative number for the title/registration fee.';
+                titleRegistrationFee = 0; // Use 0 for calculation if invalid
+            }
+
+            // State selection validation
+            if (!selectedState) {
+                stateError.textContent = 'Please select a state to calculate sales tax.';
+                // Clear sales tax dependent output fields
+                nonNegotiablePriceOutput.textContent = '0.00';
+                outTheDoorPriceOutput.textContent = '0.00';
+                // Keep negotiable price as it doesn't depend on sales tax or fixed fees
+                negotiablePriceOutput.textContent = (salePrice * 0.08).toFixed(2);
+                return;
+            }
+
+            // Retrieve the sales tax rate for the selected state
+            const SALES_TAX_RATE = salesTaxRates[selectedState];
+
+            // Define constant for negotiable items percentage
+            const NEGOTIABLE_PERCENTAGE = 0.08; // 8% of sale price for potential negotiable items
+
+            // Calculate Non-Negotiable Price components
+            const salesTax = salePrice * SALES_TAX_RATE;
+            const nonNegotiablePrice = salesTax + documentationFee + titleRegistrationFee;
+
+            // Calculate Negotiable Price
+            const negotiablePrice = salePrice * NEGOTIABLE_PERCENTAGE;
+
+            // Calculate Out The Door Price
+            const outTheDoorPrice = salePrice + negotiablePrice + nonNegotiablePrice;
+
+            // Update the display with calculated values, formatted to two decimal places
+            negotiablePriceOutput.textContent = negotiablePrice.toFixed(2);
+            nonNegotiablePriceOutput.textContent = nonNegotiablePrice.toFixed(2);
+            outTheDoorPriceOutput.textContent = outTheDoorPrice.toFixed(2);
+        }
+
+        // Call calculatePrices on page load to initialize values and handle initial state selection
+        window.onload = calculatePrices;
+    </script>
+</body>
+</html>
