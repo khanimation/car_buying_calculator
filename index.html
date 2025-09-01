@@ -265,14 +265,10 @@
             const salesTax = salePrice * SALES_TAX_RATE;
             const nonNegotiablePrice = salesTax + documentationFee + titleRegistrationFee;
 
-            // Calculate Negotiable Price
-            const negotiablePrice = salePrice * NEGOTIABLE_PERCENTAGE;
-
             // Calculate Out The Door Price
             const outTheDoorPrice = salePrice + nonNegotiablePrice;
 
             // Update the display with calculated values, formatted to two decimal places
-            negotiablePriceOutput.textContent = negotiablePrice.toFixed(2);
             nonNegotiablePriceOutput.textContent = nonNegotiablePrice.toFixed(2);
             outTheDoorPriceOutput.textContent = outTheDoorPrice.toFixed(2);
         }
