@@ -161,14 +161,6 @@
         </div>
 
         <div class="mb-5">
-            <label for="negotiablePrice" class="block text-lg font-medium text-gray-700 mb-2">Negotiable Price ($)</label>
-            <div id="negotiablePrice" class="output-field text-gray-900">0.00</div>
-            <p class="text-sm text-gray-500 mt-1">
-                (Estimated potential for negotiation, e.g., extended warranties, dealer add-ons)
-            </p>
-        </div>
-
-        <div class="mb-5">
             <label for="nonNegotiablePrice" class="block text-lg font-medium text-gray-700 mb-2">Non-Negotiable Price ($)</label>
             <div id="nonNegotiablePrice" class="output-field text-gray-900">0.00</div>
             <p class="text-sm text-gray-500 mt-1">
@@ -227,7 +219,6 @@
             const titleRegistrationFeeError = document.getElementById('titleRegistrationFeeError');
 
             // Get output elements
-            const negotiablePriceOutput = document.getElementById('negotiablePrice');
             const nonNegotiablePriceOutput = document.getElementById('nonNegotiablePrice');
             const outTheDoorPriceOutput = document.getElementById('outTheDoorPrice');
 
@@ -241,7 +232,6 @@
             if (isNaN(salePrice) || salePrice < 0) {
                 salePriceError.textContent = 'Please enter a valid positive number for the sale price.';
                 // Clear output fields if input is invalid
-                negotiablePriceOutput.textContent = '0.00';
                 nonNegotiablePriceOutput.textContent = '0.00';
                 outTheDoorPriceOutput.textContent = '0.00';
                 return;
@@ -265,16 +255,11 @@
                 // Clear sales tax dependent output fields
                 nonNegotiablePriceOutput.textContent = '0.00';
                 outTheDoorPriceOutput.textContent = '0.00';
-                // Keep negotiable price as it doesn't depend on sales tax or fixed fees
-                negotiablePriceOutput.textContent = (salePrice * 0.08).toFixed(2);
                 return;
             }
 
             // Retrieve the sales tax rate for the selected state
             const SALES_TAX_RATE = salesTaxRates[selectedState];
-
-            // Define constant for negotiable items percentage
-            const NEGOTIABLE_PERCENTAGE = 0.08; // 8% of sale price for potential negotiable items
 
             // Calculate Non-Negotiable Price components
             const salesTax = salePrice * SALES_TAX_RATE;
@@ -284,7 +269,7 @@
             const negotiablePrice = salePrice * NEGOTIABLE_PERCENTAGE;
 
             // Calculate Out The Door Price
-            const outTheDoorPrice = salePrice + negotiablePrice + nonNegotiablePrice;
+            const outTheDoorPrice = salePrice + nonNegotiablePrice;
 
             // Update the display with calculated values, formatted to two decimal places
             negotiablePriceOutput.textContent = negotiablePrice.toFixed(2);
