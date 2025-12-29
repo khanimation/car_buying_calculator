@@ -85,26 +85,26 @@
         <div id="breakdown" class="space-y-4">
             <div class="result-card">
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-gray-600 uppercase">Estimated Negotiable Base</span>
-                    <span id="label1Val" class="text-lg font-bold">$0.00</span>
+                    <span class="text-sm font-medium text-gray-600 uppercase">Vehicle Sale Price</span>
+                    <span id="labelSaleVal" class="text-lg font-bold">$0.00</span>
                 </div>
-                <p class="text-[10px] text-gray-400">The actual price of the vehicle before fees and potential dealer markup.</p>
+                <p class="text-[10px] text-gray-400">The price of the vehicle before any taxes or governmental fees.</p>
             </div>
 
             <div class="result-card">
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-gray-600 uppercase">Dealer Markup (Negotiable)</span>
-                    <span id="label2Val" class="text-lg font-bold text-orange-600">$0.00</span>
+                    <span class="text-sm font-medium text-gray-600 uppercase">Sales Tax</span>
+                    <span id="labelTaxVal" class="text-lg font-bold text-gray-800">$0.00</span>
                 </div>
-                <p class="text-[10px] text-gray-400">Estimated value of add-ons, warranties, or "market adjustments" included in the price.</p>
+                <p class="text-[10px] text-gray-400">Calculated based on the vehicle sale price and selected state rate.</p>
             </div>
 
             <div class="result-card">
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-sm font-medium text-gray-600 uppercase">Taxes & Govt Fees</span>
-                    <span id="label3Val" class="text-lg font-bold">$0.00</span>
+                    <span class="text-sm font-medium text-gray-600 uppercase">Fixed Fees</span>
+                    <span id="labelFeesVal" class="text-lg font-bold text-gray-800">$0.00</span>
                 </div>
-                <p class="text-[10px] text-gray-400">State sales tax + Documentation + Registration/Title fees.</p>
+                <p class="text-[10px] text-gray-400">Total of Documentation and Title/Registration fees.</p>
             </div>
 
             <div class="bg-blue-600 text-white p-4 rounded-lg shadow-lg mt-6">
@@ -143,7 +143,7 @@
                 btnR.className = "flex-1 py-2 text-sm font-bold rounded-md bg-white shadow-sm text-blue-600";
                 btnF.className = "flex-1 py-2 text-sm font-bold rounded-md text-gray-500";
                 label.innerText = "Enter OTD Price ($)";
-                finalLabel.innerText = "Calculated Base Price";
+                finalLabel.innerText = "Calculated Sale Price";
             }
             calculate();
         }
@@ -155,50 +155,41 @@
             const regFee = parseFloat(document.getElementById('regFee').value) || 0;
             const taxRate = state ? taxRates[state] : 0;
 
-            const markupPercentage = 0.08; // Estimated 8% markup/negotiable room
-            
-            let base, markup, taxes, final;
+            let salePrice, salesTax, totalFees, finalResult;
 
             if (currentMode === 'forward') {
-                // Forward: Sale Price -> OTD
-                markup = mainValue * markupPercentage;
-                const taxableAmount = mainValue + markup;
-                const salesTax = taxableAmount * taxRate;
-                
-                taxes = salesTax + docFee + regFee;
-                final = taxableAmount + taxes;
-                base = mainValue;
-
-                updateUI(base, markup, taxes, final);
+                // Forward: User provides Sale Price
+                salePrice = mainValue;
+                salesTax = salePrice * taxRate;
+                totalFees = docFee + regFee;
+                finalResult = salePrice + salesTax + totalFees;
             } else {
-                // Reverse: OTD -> Base
-                // Formula: OTD = (Base + Markup) * (1 + TaxRate) + DocFee + RegFee
-                // Let X = (Base + Markup)
-                // OTD - DocFee - RegFee = X * (1 + TaxRate)
-                // X = (OTD - DocFee - RegFee) / (1 + TaxRate)
-                const X = (mainValue - docFee - regFee) / (1 + taxRate);
-                
-                // Now split X into Base and Markup (assuming markup is 8% of the Base)
-                // X = Base + (Base * 0.08) => X = Base * 1.08
-                base = X / (1 + markupPercentage);
-                markup = base * markupPercentage;
-                taxes = (base + markup) * taxRate + docFee + regFee;
-                final = base; // In reverse mode, we show Base as the "Result"
-
-                updateUI(base, markup, taxes, final);
+                // Reverse: User provides OTD Price
+                // Formula: OTD = SalePrice + (SalePrice * TaxRate) + Fees
+                // OTD - Fees = SalePrice * (1 + TaxRate)
+                // SalePrice = (OTD - Fees) / (1 + TaxRate)
+                totalFees = docFee + regFee;
+                salePrice = (mainValue - totalFees) / (1 + taxRate);
+                salesTax = salePrice * taxRate;
+                finalResult = salePrice; // Result is the Sale Price
             }
+
+            updateUI(salePrice, salesTax, totalFees, finalResult);
         }
 
-        function updateUI(b, m, t, f) {
-            document.getElementById('label1Val').innerText = format(b);
-            document.getElementById('label2Val').innerText = format(m);
-            document.getElementById('label3Val').innerText = format(t);
-            document.getElementById('finalVal').innerText = format(f);
+        function updateUI(sale, tax, fees, final) {
+            document.getElementById('labelSaleVal').innerText = format(sale);
+            document.getElementById('labelTaxVal').innerText = format(tax);
+            document.getElementById('labelFeesVal').innerText = format(fees);
+            document.getElementById('finalVal').innerText = format(final);
         }
 
         function format(val) {
             return '$' + Math.max(0, val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
+
+        // Initialize
+        window.onload = calculate;
     </script>
 </body>
 </html>
